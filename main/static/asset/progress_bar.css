@@ -1,0 +1,46 @@
+.bar {
+    width: 100%;
+    height: 3px;
+    color: white;
+    border-radius: 5px;
+    z-index: 100;
+    top: 0px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0s 2s, opacity 2s linear;
+    transition: all 500ms ease; 
+    -webkit-transition: all 500ms ease;
+    position: absolute;
+}
+
+.fixed{
+  position: fixed;
+}
+
+.bar>.progress {
+    position:absolute;
+    display: inline-block;
+    background: white;
+    height: 100%;
+    box-shadow: 0 0 10px white, 0 0 5px white;
+    width: 0px;
+    transition: all 200ms ease; 
+    -webkit-transition: all 200ms ease;
+}
+
+.bar>.title {
+    text-align: right;
+    position: absolute;
+    right: 0px;
+    top: 2px;
+    color: white;
+}
+
+.bar.visible {
+  visibility: visible;
+  opacity: 1;
+  transition: opacity 0.1s linear;
+}

@@ -1,0 +1,126 @@
+html, body {
+    min-height: 100%;
+    height: 100%;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    color:#fff;
+}
+
+#msg {
+    visibility: hidden;
+    font-weight: bold;
+    font-size: 22px;
+    font-family: system-ui;
+}
+
+#div_audio_recorded{
+    visibility: hidden;
+}
+
+#div_upload{
+    text-align: center;
+}
+#text1, #text2 {
+    color: white;
+    min-height: 200px;
+    /* max-height: 300px; */
+    background-color: rgb(169 181 194 / 50%);
+    border-color: #70abea;
+    border-radius: 10px;
+    padding-left: 6px;
+    padding-right: 6px;
+}
+
+.textAreaColumn{
+    width:99%;
+    margin-left:0.5%;
+    margin-right:0.5%;
+}
+.textAreaColumn div{
+    float:left;
+    width:49%;
+    padding:4px;
+    box-sizing: border-box;
+}
+
+.textAreaColumn div span{
+    display:block;
+    text-align:center;
+}
+
+.textAreaColumn div textarea{
+    box-sizing: border-box;
+    width:100%;
+    /* min-height:150px; */
+}
+.textAreaColumn2{
+    display: inline-flex
+}
+
+#time1, #time2 {
+    font-size: smaller;
+    display: inline-flex;
+}
+
+/* .btn-sm {
+    width: 120px;
+    height: 36px;
+  
+  } */
+  
+  #btn_submit_mixed_file {
+    /* border: solid 1px white; */
+    width: 120px;
+  }
+
+a {
+    color: #ffffff;
+}
+.wave-bg{
+    z-index: 1;
+    position: absolute;            
+}
+#waves {
+    background-color: #0d52c0;
+}
+#main{
+    position: relative;
+    text-align: center;
+}
+#main2{
+    z-index: 2;
+    position: absolute;
+    /* text-align: center; */
+    width: 100%;
+    height: 100%;
+    margin-top: 20px;
+}
+
+/* nav link */
+.nav-link {
+    display: block;
+    padding: 0.4rem 6rem;
+}
+
+.nav-tabs .nav-link {
+    border: 1px solid #ecf0f1;
+    border-top-left-radius: 0rem;
+    border-top-right-radius: 0rem;
+}
+
+.nav-tabs .nav-link:hover, .nav-tabs .nav-link:focus {
+    border-color: #ecf0f1 #ecf0f1 #ecf0f1;
+    background: #ecf0f1;
+    color: black;
+}
+
+#home-tab{
+    border-top-left-radius: 0.25rem;
+}
+#profile-tab{
+    border-top-right-radius: 0.25rem;
+}
+
+#home-tab, #profile-tab{
+    /* color: white; */
+    font-weight: 500;
+}

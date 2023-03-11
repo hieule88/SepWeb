@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SPEECH SEPARATION</title>
+    <link rel="shortcut icon" href="{{url_for('static', filename = 'asset/logo.jpg')}}">
+    <script type="text/javascript" src="https://code.jquery.com/jquery-1.4.2.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js" integrity="sha512-3P8rXCuGJdNZOnUx/03c1jOTnMn3rP63nBip5gOP2qmUh5YAdVAvFZ1E+QLZZbC1rtMrQb+mah3AfYW11RUrWA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+    <script src="{{url_for('static', filename = 'asset/sine-waves.min.js')}}" type="text/javascript"></script>    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/4.1.3/flatly/bootstrap.min.css">
+    <link rel="stylesheet" href="{{url_for('static', filename = 'asset/style.css')}}">
+    <link rel="stylesheet" href="{{url_for('static', filename = 'asset/progress_bar.css')}}">
+
+</head>
+<body>
+<!-- progress bar -->
+<div class="bar visible fixed">
+    <div class="progress"></div>
+    <div class="progress_title"></div>
+</div>
+<div id="main">
+    <div id="main2">
+        <h2><span style="color: #ffc107;">SPEECH SEPARATION</span></h2>
+        <br>
+        <!-- Tab navigation -->
+        <ul class="nav nav-tabs list-inline d-flex justify-content-center" id="myTab" role="tablist">
+            <li class="nav-item">
+            <a class="nav-link" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="false">MIX & PROCESS</a>
+            </li>
+            <li class="nav-item">
+            <a class="nav-link active" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="true">PROCESS</a>
+            </li>
+            <li class="nav-item">
+            <a class="nav-link" id="record-tab" data-toggle="tab" href="#record" role="tab" aria-controls="record" aria-selected="false">RECORD & PROCESS</a>
+            </li>
+        </ul>
+        
+        <!-- Tab content -->
+        <div class="tab-content" id="myTabContent">
+            <!-- Mix & process 2 file1 -->
+            <div class="tab-pane fade" id="home" role="tabpanel" aria-labelledby="home-tab">
+                <form action="" method="POST" enctype="multipart/form-data">
+                    <p>
+                    <h5>Select 2 file to mix & process</h5>
+                    <hr style="width:50%";>
+                    <p>
+                        <input type="file" name="file1" id="file1" class="btn btn-light" accept="audio/*">
+                        <input type="file" name="file2" id="file2"  class="btn btn-light" accept="audio/*">
+                    </p>
+                    <p>
+                        <button type="submit" class="btn btn-warning">Mix & Process</button>
+                    </p>
+                    <br>
+                </form>
+            </div>
+            
+            <!-- Process 1 file -->
+            <div class="tab-pane fade active show" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+                <form id="form_upload_mixed_file" action="" method="POST" enctype="multipart/form-data">
+                    <p>
+                    <h5>Select mixed file</h5>
+                    <hr style="width:50%";>
+                    <p>
+                        <input type="file" name="file3" id="file3"  class="btn btn-light" accept="audio/*">
+                    </p>
+                    <p>
+                        <button id="btn_submit_mixed_file" type="submit" class="btn btn-warning">Process</button>
+                    </p>
+                    <br>
+                </form>
+            </div>
+            
+            <!-- Record & Process 1 file -->
+            <div class="tab-pane fade" id="record" role="tabpanel" aria-labelledby="record-tab">
+                    <p>
+                    <h5>Record mixed file</h5>
+                    <hr style="width:50%";>
+                    <p>
+                        <div id="msg">Recording...</div>
+                        <button id="startRecording" class="btn btn-danger">Start</button>
+                        <button id="stopRecording" class="btn">Stop</button>
+                    </p>
+                    <p>
+                        <div id="div_audio_recorded">
+                            <h6>Recorded</h6>
+                            <audio id="audio_recorded" controls></audio>
+                        </div>
+                    </p>
+                    <br>
+            </div>
+        </div>
+
+        {% if mixed_filepath != none %}
+            <h6>Mixed</h6>
+            <audio id="mix_audio" src="{{mixed_filepath}}" controls></audio>
+        {% endif %}
+
+        <div class="textAreaColumn" id="textAreaColumn">
+            <div id="model1">
+                <h6>Speaker 1</h6>
+                <audio id="speaker1_audio" src="{{speaker1_file}}" controls></audio>
+            </div>
+            <div id="model2">
+                <h6>Speaker 2</h6>
+                <audio id="speaker2_audio" src="{{speaker2_file}}" controls></audio>
+            </div>
+        </div>
+    </div>
+    <!-- wave background -->
+    <div class="wave-bg">
+        <div id="container">
+            <canvas id="waves"></canvas>
+        </div>
+    </div>
+    <!-- end background-->
+</div>
+</body>
+
+
+<!-- Record script -->
+<script>
+    if (!navigator.getUserMedia){
+        navigator.mediaDevices.getUserMedia = navigator.mediaDevices.getUserMedia ||
+                                            navigator.mediaDevices.webkitGetUserMedia ||
+                                            navigator.mediaDevices.mozGetUserMedia || 
+                                            navigator.mediaDevices.msGetUserMedia;
+    }
+    else{
+        alert('Not Found Mic')
+    }
+
+    navigator.mediaDevices.getUserMedia({audio:true}).then(stream => {handlerFunction(stream)})
+
+    function handlerFunction(stream) {
+        rec = new MediaRecorder(stream);
+        rec.ondataavailable = e => {
+            audioChunks.push(e.data);
+            if (rec.state == "inactive") {
+                let blob = new Blob(audioChunks, {type: 'audio/wav'});
+                sendData(blob);
+            }
+        }
+    }
+
+    function reset_btn_when_api_done(){
+        $("#stopRecording").html('Stop & Process');
+        $("#stopRecording").prop("disabled", false);
+    }
+
+    function get_api_progress(task_id){
+        console.log("get progress")
+        $.ajax({
+            url: '/results',
+            type: "POST",
+            data: JSON.stringify({"task_id": task_id}),
+            contentType: "application/json;charset=utf-8",
+            dataType: "json",
+            // processData:false,
+            success: function(rp){
+                if (rp["status"] == "done"){
+                        console.log("rp:", rp)
+                        reset_btn_when_api_done()
+                        $("#mix_audio").attr('src', rp['results']["mixed_filepath"])
+                        $("#text1").text(rp['results']["speaker1_text"])
+                        $("#text2").text(rp['results']["speaker2_text"])
+                        $("#speaker1_audio").attr('src', rp['results']["speaker1_file"])
+                        $("#speaker2_audio").attr('src', rp['results']["speaker2_file"])
+                    }
+                    else {
+                        setTimeout(get_api_progress, 1000, task_id);
+                        $("#text1").text("")
+                        $("#text2").text("")
+                    }
+            },
+            error: function(){
+                reset_btn_when_api_done()
+                $("#text1").text("get progress error")
+                $("#text2").text("get progress error")
+            }
+        });
+    };
+
+    function sendData(data) {
+        console.log("send to server")
+        var form = new FormData();
+        form.append('file', data, 'data.wav');
+        form.append('file', 'data.wav');
+
+        $("#stopRecording").html(`<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Uploading...`);
+        $("#stopRecording").prop("disabled", true);
+
+
+        //Chrome inspector shows that the post data includes a file and a title.
+        $.ajax({
+            type: 'POST',
+            url: '/',
+            data: form,
+            cache: false,
+            processData: false,
+            contentType: false,
+            success: function (rp) {
+                console.log('record successfuly');
+                console.log("rp:", rp);
+                $("#stopRecording").html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...')
+                $("#file3").prop("disabled", true);
+                get_api_progress(rp["task_id"])
+
+            },
+            error: function (rp) {
+                console.log('upload error');
+                console.log(rp);
+                reset_btn_when_api_done()
+            },
+        }).done(function(rp) {
+            console.log(rp);
+            $("#audio_recorded").attr('src', rp['results']["record_filepath"])
+        });
+    }
+
+    
+    startRecording.onclick = e => {
+        console.log('Recording are started..');
+        startRecording.disabled = true;
+        stopRecording.disabled = false;
+        audioChunks = [];
+        rec.start();
+        document.querySelector('#div_audio_recorded').style.visibility = 'hidden'
+        document.querySelector('#msg').style.visibility = 'visible'
+    };
+
+    stopRecording.onclick = e => {
+        console.log("Recording are stopped.");
+        startRecording.disabled = false;
+        stopRecording.disabled = true;
+        rec.stop();
+        document.querySelector('#msg').style.visibility = 'hidden'
+        document.querySelector('#div_audio_recorded').style.visibility = 'visible'
+    };
+</script>
+
+<script>
+    // script submit form for long mixed audio file
+    var frm = $('#form_upload_mixed_file');
+    var input3 = $('#file3');
+    frm.submit(function (e) {
+        e.preventDefault();
+        file3 = input3[0].files[0];
+        console.log("file3:", file3)
+        if (!file3) {
+            console.log("input file 3 is empty")
+            return;
+        }
+        console.log("submit clicked")
+
+        $("#btn_submit_mixed_file").html(`<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Uploading...`);
+        $("#btn_submit_mixed_file").prop("disabled", true);
+        //$("#file3").prop("disabled", true);
+
+        // progress bar update value
+        function set_value_for_progress_bar(val){
+            console.log("uploading:" + parseInt(val).toString() + "%")
+            $(".bar").addClass("visible");
+            $(".progress").width(val + "%");
+            if (val == 100){
+                $(".bar").removeClass("visible");
+            }
+        }
+        
+        // enable button when request done
+        function reset_btn_when_api_done(){
+            $("#btn_submit_mixed_file").html(`Process`);
+            $("#btn_submit_mixed_file").prop("disabled", false);
+            $("#file3").prop("disabled", false);
+        }
+
+        function get_api_progress(task_id){
+            console.log("get progress")
+            $.ajax({
+                url: '/results',
+                type: "POST",
+                data: JSON.stringify({"task_id": task_id}),
+                contentType: "application/json;charset=utf-8",
+                dataType: "json",
+                // processData:false,
+                success: function(rp){
+                    if (rp["status"] == "done"){
+                            console.log("rp:", rp)
+                            reset_btn_when_api_done()
+                            $("#mix_audio").attr('src', rp['results']["mixed_filepath"])
+                            $("#text1").text(rp['results']["speaker1_text"])
+                            $("#text2").text(rp['results']["speaker2_text"])
+                            $("#speaker1_audio").attr('src', rp['results']["speaker1_file"])
+                            $("#speaker2_audio").attr('src', rp['results']["speaker2_file"])
+                        }
+                        else {
+                            setTimeout(get_api_progress, 1000, task_id);
+                            $("#text1").text("")
+                            $("#text2").text("")
+                        }
+                },
+                error: function(){
+                    reset_btn_when_api_done()
+                    $("#text1").text("get progress error")
+                    $("#text2").text("get progress error")
+                }
+            });
+        };
+        
+        $.ajax({
+            xhr: function() {
+                var xhr = new window.XMLHttpRequest();
+                xhr.upload.addEventListener("progress", function(evt) {
+                    if (evt.lengthComputable) {
+                        var percentComplete = ((evt.loaded / evt.total) * 100)
+                        set_value_for_progress_bar(percentComplete)
+                    }
+                }, false);
+                return xhr;
+            },
+            type: "POST",
+            url: "",
+            data: new FormData(this),
+            dataType: 'json',
+            contentType: false,
+            cache: false,
+            processData:false,
+            success: function (rp) {
+                console.log('upload successfuly');
+                console.log("rp:", rp);
+                $("#btn_submit_mixed_file").html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...')
+                $("#file3").prop("disabled", true);
+                get_api_progress(rp["task_id"])
+
+            },
+            error: function (rp) {
+                console.log('upload error');
+                console.log(rp);
+                reset_btn_when_api_done()
+            },
+        });
+    });
+</script>
+
+<script>
+    if ( window.history.replaceState ) {
+        window.history.replaceState( null, null, window.location.href );
+    }
+
+    function computeLength(file) {
+        return new Promise((resolve) => {
+            var objectURL = URL.createObjectURL(file);
+            var mySound = new Audio([objectURL]);
+            mySound.addEventListener(
+            "canplaythrough",
+            () => {
+                URL.revokeObjectURL(objectURL);
+                resolve({
+                file,
+                duration: mySound.duration
+                });
+            },
+            false,
+            );
+        });  
+    }
+
+    // select & upload file
+    $('#file1').change(function() {
+        var numb = $(this)[0].files[0].size / 1024 / 1024;
+        numb = numb.toFixed(2);
+        console.log("file size:" + numb + ' MiB')
+        if (numb > 100) {
+            alert('File too big, maximum is 100MiB. You file size is: ' + numb + ' MiB');
+            $('#file1').val(null);
+        }    
+    });
+    $('#file2').change(function() {
+        var numb = $(this)[0].files[0].size / 1024 / 1024;
+        numb = numb.toFixed(2);
+        console.log("file size:" + numb + ' MiB')
+        if (numb > 100) {
+            alert('File too big, maximum is 100MiB. You file size is: ' + numb + ' MiB');
+            $('#file2').val(null);
+        }    
+    });
+    $('#file3').change(function() {
+        var numb = $(this)[0].files[0].size / 1024 / 1024;
+        numb = numb.toFixed(2);
+        console.log("file size:" + numb + ' MiB')
+        if (numb > 100) {
+            alert('File too big, maximum is 100MiB. You file size is: ' + numb + ' MiB');
+            $('#file3').val(null);
+            file3 = null;
+        }    
+    });
+</script>
+
+<script>
+//script wave background
+var waves = new SineWaves({
+    el: document.getElementById('waves'),
+    speed: 3,
+    width: function() {
+        return $(window).width();
+    },
+    height: function() {
+        return $(window).height() + 50;
+    },
+    ease: 'SineInOut',
+    wavesWidth: '80%',
+    waves: [
+        {
+        timeModifier: 4,
+        lineWidth: 0.75,
+        amplitude: -20,
+        wavelength: 20
+        },
+        {
+        timeModifier: 2,
+        lineWidth: 2,
+        amplitude: -40,
+        wavelength: 40
+        },
+        {
+        timeModifier: 1,
+        lineWidth: 0.75,
+        amplitude: -80,
+        wavelength: 80
+        },
+        {
+        timeModifier: 0.5,
+        lineWidth: 2,
+        amplitude: -160,
+        wavelength: 160
+        },
+        {
+        timeModifier: 0.25,
+        lineWidth: 1,
+        amplitude: -160,
+        wavelength: 160
+        }
+    ],
+    
+    // Called on window resize
+    resizeEvent: function() {
+        var gradient = this.ctx.createLinearGradient(0, 0, this.width, 0);
+        gradient.addColorStop(0,"rgba(23, 210, 168, 0.2)");
+        gradient.addColorStop(0.5,"rgba(255, 255, 255, 0.5)");
+        gradient.addColorStop(1,"rgba(23, 210, 168, 0.2)");
+        
+        var index = -1;
+        var length = this.waves.length;
+        while(++index < length){
+            this.waves[index].strokeStyle = gradient;
+        }
+        // Clean Up
+        index = void 0;
+        length = void 0;
+        gradient = void 0;
+    }
+});
+</script>
+
+</html>
